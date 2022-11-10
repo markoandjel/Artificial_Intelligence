@@ -1,13 +1,7 @@
 from functools import *
 from itertools import *
-def spoji(lista):
-        A , B= tee(lista)
-        C, D = tee(lista)
-        next(B, None)
-        next(C, None)        
-        next(C, None)
-        return zip(A, B, C) 
-def izracunaj(a:list,func):
-    return list(starmap(func, spoji(a)))
+ 
+def izracunaj(A:list,func):
+    return list(starmap(func,list((A[x],A[x+1],A[x+2]) for x in range(len(A)-2))))
+
 print(izracunaj([2, 5, 1, 6, 7], lambda x, y, z: x + y * z))
-print(list(spoji([2, 5, 1, 6, 7])))
