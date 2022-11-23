@@ -39,7 +39,10 @@ def Obilazak(graph,S,M):
 def ciklicniObilazak(graph,S,M):
     pom=Obilazak(graph,S,M)
     temp=Obilazak(graph,M,S)
-    return pom[:-1]+temp
+    if(len(pom)==0 or len(temp)==0):
+        return 'Nema ciklicnog zatvaranja'
+    else:
+        return pom[:-1]+temp
 
 
 graph={
