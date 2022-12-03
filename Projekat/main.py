@@ -2,37 +2,32 @@ import pygame
 from pygame.locals import *
 from domineering import Domineering
 pygame.init()
-
+clock=pygame.time.Clock()
 # Postavi ekran
-
-
-
 screen = pygame.display.set_mode([800, 800])
-dominacija = Domineering(screen=screen)
+dominacija = Domineering(screen=screen,m=7,n=7)
 
+dominacija.pocetno_stanje()
+dominacija.unesi_potez((2,2))
+dominacija.unesi_potez((5,5))
 
-#figureX=pygame.Surface((velicinaPolja,2*velicinaPolja))
-#pygame.draw.rect(figureX,(255,80,80),(0,0,velicinaPolja,2*velicinaPolja))
+dominacija.unesi_potez((1,5))
 
-
-# Radi dok ti ne kažem kraj 
+dominacija.unesi_potez((0,3))
 running = True
+  
 while running:
-
-    # Klik na izađi dugme? 
+    #igrac='X' if dominacija.x_na_potezu else 'O'
+    #print(f'Na potezu je igrac {igrac}')
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-    screen.blit(dominacija.crtajTablu(8,8),(50,50))
     
-
-    #screen.blit(figureX,(50,150))
-    # Nacrtaj nešto 
-    #pygame.draw.circle(screen, (0, 0, 255), (250, 250), 75)
-
-    # Prikazi to nešto
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            dominacija.proveri_klik(event.pos)            
+    dominacija.crtaj_tablu()
+    dominacija.prikaz_stanja()
     pygame.display.flip()
+    clock.tick(60)
 
-# Dosta je! Gasi sliku!
 pygame.quit()
