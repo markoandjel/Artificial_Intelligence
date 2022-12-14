@@ -15,7 +15,7 @@ def func(G,c):
             to_color = top['uncolored'][0]
             potential = list(top['domain'][to_color])
             for n in G[to_color]:
-                if top['colored'].get(n, None) and top['colored'][n] in potential:
+                if top['colored'].get(n) and top['colored'][n] in potential:
                     potential.remove(top['colored'][n])
             if potential:
                 newDomain = dict(top['domain'])
