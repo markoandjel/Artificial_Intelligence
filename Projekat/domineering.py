@@ -57,7 +57,7 @@ class Domineering:
         p=True
         background=pygame.Surface(self.screen.get_size())
         background=background.convert()
-        backgroundColor=(255,240,125)
+        backgroundColor=(171,219,227)
         background.fill(backgroundColor)
         self.screen.blit(background,(0,0))
         for i in range(self.m-1,-1,-1):
@@ -154,3 +154,34 @@ class Domineering:
             if not self.stanje[pos[0]][pos[1]+1] == None:
                 return False
         return True
+
+def potez_validan_za_stanje(zadato_stanje,x_igra,pos): #provera validnosti poteza za odredjeno stanje
+        if x_igra:
+            if  not (len(zadato_stanje) > pos[0] >= 1):
+                return False
+            if not (len((zadato_stanje)[0]) > pos[1] >= 0):
+                return False
+            if not zadato_stanje[pos[0]][pos[1]] == None:
+                return False
+            if not zadato_stanje[pos[0]-1][pos[1]] == None:
+                return False
+        else:
+            if  not (len(zadato_stanje) > pos[0] >= 0):
+                return False
+            if not (len((zadato_stanje)[0]) - 1 > pos[1] >= 0):
+                return False
+            if not zadato_stanje[pos[0]][pos[1]] == None:
+                return False
+            if not zadato_stanje[pos[0]][pos[1]+1] == None:
+                return False
+        return True
+
+def promena_stanja(zadato_stanje,x_igra,pos):
+    if potez_validan_za_stanje(zadato_stanje,x_igra,pos):
+        if (x_igra):
+                zadato_stanje[pos[0]][pos[1]]=1
+                zadato_stanje[pos[0]-1][pos[1]]=1
+        elif (not x_igra):
+                zadato_stanje[pos[0]][pos[1]]=0
+                zadato_stanje[pos[0]][pos[1]+1]=0
+    return zadato_stanje
