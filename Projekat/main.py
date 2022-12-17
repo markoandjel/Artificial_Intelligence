@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 from domineering import promena_stanja
+from domineering import moguca_nova_stanja
 from domineering import Domineering
 pygame.init()
 clock=pygame.time.Clock()
@@ -10,13 +11,13 @@ screen = pygame.display.set_mode([800, 800])
 
 dominacija = Domineering(screen=screen)
 
-#dominacija.pocetni_parametri()
+dominacija.pocetni_parametri()
 
 dominacija.pocetno_stanje()
-#dominacija.unesi_potez((2,2))
-#dominacija.unesi_potez((5,5))
-#dominacija.unesi_potez((1,5))
-#dominacija.unesi_potez((0,3))
+
+
+nova_stanja=moguca_nova_stanja([[None,None,None],[None,None,None],[None,None,None]],False)
+print(nova_stanja)
 running = True
 
 p=promena_stanja([[None,None,None],[None,None,None],[None,None,None]],False,(2,2))

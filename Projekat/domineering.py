@@ -185,3 +185,12 @@ def promena_stanja(zadato_stanje,x_igra,pos):
                 zadato_stanje[pos[0]][pos[1]]=0
                 zadato_stanje[pos[0]][pos[1]+1]=0
     return zadato_stanje
+
+def moguca_nova_stanja(zadato_stanje,x_igra):
+    nova_stanja = list()
+    for i in range(len(zadato_stanje)):
+        for j in range(len(zadato_stanje[i])):
+            privremeno_stanje = [vrste.copy() for vrste in zadato_stanje]
+            if potez_validan_za_stanje(zadato_stanje,x_igra,(i,j)):
+                nova_stanja.append(promena_stanja(privremeno_stanje,x_igra,(i,j)))
+    return nova_stanja
