@@ -221,22 +221,3 @@ def odredi_heurustiku(stanje):
 
     return polu_popunjene_kolone+polu_popunjene_vrste+popunjene_kolone+popunjene_vrste
 
-    
-    
-
-def heuristic(state):
-    # Count the number of rows and columns that are completely filled with dominos
-    filled_rows = sum(state.row_filled(i) for i in range(state.rows))
-    filled_cols = sum(state.col_filled(i) for i in range(state.cols))
-
-    # Count the number of rows and columns that have only one empty space
-    half_filled_rows = sum(state.row_filled(i) == state.cols - 1 for i in range(state.rows))
-    half_filled_cols = sum(state.col_filled(i) == state.rows - 1 for i in range(state.cols))
-
-    # Calculate the value of the current state
-    value = filled_rows + filled_cols + half_filled_rows + half_filled_cols
-
-    # If the current player is the maximizing player, return the value
-    # If the current player is the minimizing player, return -value
-    return value if state.current_player == MAXIMIZING_PLAYER else -value
-
