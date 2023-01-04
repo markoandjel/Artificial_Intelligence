@@ -194,3 +194,49 @@ def moguca_nova_stanja(zadato_stanje,x_igra):
             if potez_validan_za_stanje(zadato_stanje,x_igra,(i,j)):
                 nova_stanja.append(promena_stanja(privremeno_stanje,x_igra,(i,j)))
     return nova_stanja
+
+#def odredi_heuristiku_za_stanje(stanje):
+
+def min_stanje(lista_stanja):
+    return min(lista_stanja)
+
+def odredi_heurustiku(stanje):
+    popunjene_kolone=0
+    popunjene_vrste=0
+    polu_popunjene_vrste=0
+    polu_popunjene_kolone=0
+
+    for vrsta in stanje:
+        if all(map(lambda x: True if (x==0 or x==1) else False,vrsta)):
+            popunjene_vrste+=1
+        if vrsta.count(None)==1:
+            polu_popunjene_vrste+=1
+                
+
+    for kolona in range(len(stanje[0])):
+        if all(map(lambda x: True if (x==0 or x==1) else False,[stanje[vrsta,kolona] for vrsta in range(len(stanje))])):
+            popunjene_kolone+=1  
+        if [stanje[vrsta,kolona] for vrsta in range(len(stanje))].count(None)==1:
+            polu_popunjene_kolone+=1
+
+    return polu_popunjene_kolone+polu_popunjene_vrste+popunjene_kolone+popunjene_vrste
+
+    
+    
+
+def heuristic(state):
+    # Count the number of rows and columns that are completely filled with dominos
+    filled_rows = sum(state.row_filled(i) for i in range(state.rows))
+    filled_cols = sum(state.col_filled(i) for i in range(state.cols))
+
+    # Count the number of rows and columns that have only one empty space
+    half_filled_rows = sum(state.row_filled(i) == state.cols - 1 for i in range(state.rows))
+    half_filled_cols = sum(state.col_filled(i) == state.rows - 1 for i in range(state.cols))
+
+    # Calculate the value of the current state
+    value = filled_rows + filled_cols + half_filled_rows + half_filled_cols
+
+    # If the current player is the maximizing player, return the value
+    # If the current player is the minimizing player, return -value
+    return value if state.current_player == MAXIMIZING_PLAYER else -value
+
