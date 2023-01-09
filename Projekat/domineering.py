@@ -69,14 +69,15 @@ class Domineering:
                 p=not p
         pygame.draw.rect(tabla,backgroundColor,(0,0,self.velicinaPolja,self.velicinaPolja*self.m))
         pygame.draw.rect(tabla,backgroundColor,(0,self.velicinaPolja*self.m,self.velicinaPolja*(self.n+1),self.velicinaPolja))
-        font=pygame.font.SysFont(None, int(self.velicinaPolja/3))
+        font_naslov=pygame.font.SysFont(None, int(self.screen.get_size()[0]/10))
+        font=pygame.font.SysFont(None, int(self.velicinaPolja))
 
         if self.kraj_igre():
             igrac='O' if self.x_na_potezu else 'X'
-            img = font.render(f'Pobednik je igrac {igrac}', True, (0,0,0))
+            img = font_naslov.render(f'Pobednik je igrac {igrac}', True, (0,0,0))
         else:
             igrac='X' if self.x_na_potezu else 'O'
-            img = font.render(f'Na potezu je igrac {igrac}', True, (0,0,0))
+            img = font_naslov.render(f'Na potezu je igrac {igrac}', True, (0,0,0))
 
         rect = img.get_rect()
         pygame.draw.rect(img, (0,0,0), rect,-1)
@@ -113,7 +114,7 @@ class Domineering:
         x=x-self.velicinaPolja
         y=y-self.velicinaPolja
         if 0<x<self.velicinaPolja*(self.n) and 0<y<self.velicinaPolja*(self.m):
-            self.unesi_potez((int(y/self.velicinaPolja),int(x/self.velicinaPolja)))
+            return self.unesi_potez((int(y/self.velicinaPolja),int(x/self.velicinaPolja)))
 
     def unesi_potez(self,pos): #unos poteza kao i provera njegove validnosti
         if (self.potez_validan(pos)):
@@ -124,8 +125,10 @@ class Domineering:
                 self.stanje[pos[0]][pos[1]]=0
                 self.stanje[pos[0]][pos[1]+1]=0
             self.x_na_potezu=not self.x_na_potezu
+            return True
         else:
             print('Uneli ste nevalidan potez')
+            return False
 
     def kraj_igre(self): #provera da li je igra došla do kraja
         for i in range(self.m):
@@ -167,9 +170,9 @@ def min_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
         return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
     lista_poteza=moguci_potezi(stanje,x_igra)
     if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
-        return (potez,odredi_heurustiku(stanje))
+        return (potez,odredi_heuristiku2(stanje,x_max))
     for s in lista_poteza:
-        beta=min(beta,max_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez==None else potez),key=lambda x:x[1])
+        beta=min(beta,max_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez is None else potez),key=lambda x:x[1])
         if beta[1]<=alfa[1]:
             break
     return beta
@@ -179,14 +182,14 @@ def max_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
         return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
     lista_poteza=moguci_potezi(stanje,x_igra)
     if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
-        return (potez,odredi_heurustiku(stanje))
+        return (potez,odredi_heuristiku2(stanje,x_max))
     for s in lista_poteza:
-        alfa=max(alfa,min_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez==None else potez),key=lambda x:x[1])
+        alfa=max(alfa,min_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez is None else potez),key=lambda x:x[1])
         if beta[1]<=alfa[1]:
             break
     return alfa
 
-def minimax_alfa_beta(stanje,x_igra,x_max,dubina,alfa=(None,float(-999)),beta=(None,float(999))):
+def minimax_alfa_beta(stanje,x_igra,x_max,dubina,alfa=(None,float('-inf')),beta=(None,float('inf'))):
     return max_value(stanje,x_igra,x_max,dubina,alfa,beta) if x_igra==x_max else min_value(stanje,x_igra,x_max,dubina,alfa,beta)
 
 
@@ -211,7 +214,8 @@ def potez_validan_za_stanje(zadato_stanje,x_igra,pos): #provera validnosti potez
                 return False
         return True
 
-def promena_stanja(zadato_stanje,x_igra,pos):
+def promena_stanja(ulazno_stanje,x_igra,pos):
+    zadato_stanje= [[x for x in vrste] for vrste in ulazno_stanje]
     if potez_validan_za_stanje(zadato_stanje,x_igra,pos):
         if (x_igra):
                 zadato_stanje[pos[0]][pos[1]]=1
@@ -241,7 +245,7 @@ def moguci_potezi(zadato_stanje,x_igra):
 
 #def odredi_heuristiku_za_stanje(stanje):
 
-def odredi_heurustiku(stanje):
+def odredi_heuristiku(stanje): #bot level noob
     popunjene_kolone=0
     popunjene_vrste=0
     polu_popunjene_vrste=0
@@ -261,3 +265,23 @@ def odredi_heurustiku(stanje):
 
     return polu_popunjene_kolone+polu_popunjene_vrste+popunjene_kolone+popunjene_vrste
 
+def odredi_heuristiku2(stanje,x_max): # bot level super-mega-giga-tera proooooo
+    x_linija=0
+    o_linija=0
+    prazna_mesta=0
+    for vrsta in range(len(stanje)):
+        for kolona in range(len(stanje[vrsta])):
+            if kolona<len(stanje[vrsta])-1: 
+                if stanje[vrsta][kolona]==1 and stanje[vrsta][kolona+1]==1:
+                    x_linija+=1
+                elif stanje[vrsta][kolona]==0 and stanje[vrsta][kolona+1]==0:
+                    o_linija+=1
+            if vrsta<len(stanje)-1:
+                if stanje[vrsta][kolona]==1 and stanje[vrsta+1][kolona]==1:
+                    x_linija+=1
+                elif vrsta < len(stanje)-1 and stanje[vrsta][kolona]==0 and stanje[vrsta+1][kolona]==0:
+                    o_linija+=1
+            if(stanje[vrsta][kolona] is None):
+                prazna_mesta+=1
+    
+    return (x_linija-o_linija)*prazna_mesta if x_max==True else (o_linija-x_linija)*prazna_mesta

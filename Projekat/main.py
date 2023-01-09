@@ -4,14 +4,15 @@ from domineering import promena_stanja
 from domineering import moguca_nova_stanja
 from domineering import *
 from domineering import Domineering
+from timeit import default_timer as timer
 pygame.init()
 clock=pygame.time.Clock()
 # Postavi ekran
 screen = pygame.display.set_mode([800, 800])
 
-dominacija = Domineering(screen=screen)
+dominacija = Domineering(screen=screen,m=8,n=10)
 
-dominacija.pocetni_parametri()
+#dominacija.pocetni_parametri()
 dominacija.pocetno_stanje()
 
 running = True
@@ -22,11 +23,13 @@ while running:
             running = False
     
         if event.type == pygame.MOUSEBUTTONDOWN:
-            dominacija.proveri_klik(event.pos)
-            min_max_value=minimax_alfa_beta([[x]for vrsta in dominacija.stanje for x in vrsta],dominacija.x_na_potezu,True,3)
-            print(min_max_value)
-            #dominacija.unesi_potez(min_max_value[0])
-                
+            if dominacija.proveri_klik(event.pos):
+                start=timer()
+                min_max_value=minimax_alfa_beta([ [x for x in vrsta] for vrsta in dominacija.stanje],dominacija.x_na_potezu,True,4)
+                end=timer()
+                print(end-start)
+                if not min_max_value[0]==None: 
+                    dominacija.unesi_potez(min_max_value[0])
     dominacija.crtaj_tablu()
     dominacija.prikaz_stanja()
 
