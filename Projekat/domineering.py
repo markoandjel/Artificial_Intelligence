@@ -69,7 +69,7 @@ class Domineering:
                 p=not p
         pygame.draw.rect(tabla,backgroundColor,(0,0,self.velicinaPolja,self.velicinaPolja*self.m))
         pygame.draw.rect(tabla,backgroundColor,(0,self.velicinaPolja*self.m,self.velicinaPolja*(self.n+1),self.velicinaPolja))
-        font=pygame.font.SysFont(None, int(self.velicinaPolja))
+        font=pygame.font.SysFont(None, int(self.velicinaPolja/3))
 
         if self.kraj_igre():
             igrac='O' if self.x_na_potezu else 'X'
@@ -78,7 +78,6 @@ class Domineering:
             igrac='X' if self.x_na_potezu else 'O'
             img = font.render(f'Na potezu je igrac {igrac}', True, (0,0,0))
 
-        
         rect = img.get_rect()
         pygame.draw.rect(img, (0,0,0), rect,-1)
         self.screen.blit(img,(int(self.velicinaPolja),int(self.velicinaPolja/4)))
@@ -155,6 +154,42 @@ class Domineering:
                 return False
         return True
 
+    
+def kraj_igre_za_stanje(stanje,x_igra): #provera da li je igra došla do kraja za odredjeno stanje
+        for i in range(len(stanje)):
+            for j in range(len(stanje[i])):
+                if potez_validan_za_stanje(stanje,x_igra,(i,j)):
+                    return False
+        return True
+
+def min_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
+    if kraj_igre_za_stanje(stanje,x_igra):
+        return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
+    lista_poteza=moguci_potezi(stanje,x_igra)
+    if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
+        return (potez,odredi_heurustiku(stanje))
+    for s in lista_poteza:
+        beta=min(beta,max_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez==None else potez),key=lambda x:x[1])
+        if beta[1]<=alfa[1]:
+            break
+    return beta
+
+def max_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
+    if kraj_igre_za_stanje(stanje,x_igra):
+        return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
+    lista_poteza=moguci_potezi(stanje,x_igra)
+    if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
+        return (potez,odredi_heurustiku(stanje))
+    for s in lista_poteza:
+        alfa=max(alfa,min_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez==None else potez),key=lambda x:x[1])
+        if beta[1]<=alfa[1]:
+            break
+    return alfa
+
+def minimax_alfa_beta(stanje,x_igra,x_max,dubina,alfa=(None,float(-999)),beta=(None,float(999))):
+    return max_value(stanje,x_igra,x_max,dubina,alfa,beta) if x_igra==x_max else min_value(stanje,x_igra,x_max,dubina,alfa,beta)
+
+
 def potez_validan_za_stanje(zadato_stanje,x_igra,pos): #provera validnosti poteza za odredjeno stanje
         if x_igra:
             if  not (len(zadato_stanje) > pos[0] >= 1):
@@ -186,7 +221,7 @@ def promena_stanja(zadato_stanje,x_igra,pos):
                 zadato_stanje[pos[0]][pos[1]+1]=0
     return zadato_stanje
 
-def moguca_nova_stanja(zadato_stanje,x_igra):
+def moguca_nova_stanja(zadato_stanje,x_igra): #obrisi posle?
     nova_stanja = list()
     for i in range(len(zadato_stanje)):
         for j in range(len(zadato_stanje[i])):
@@ -195,10 +230,16 @@ def moguca_nova_stanja(zadato_stanje,x_igra):
                 nova_stanja.append(promena_stanja(privremeno_stanje,x_igra,(i,j)))
     return nova_stanja
 
-#def odredi_heuristiku_za_stanje(stanje):
 
-def min_stanje(lista_stanja):
-    return min(lista_stanja)
+def moguci_potezi(zadato_stanje,x_igra):
+    moguci_potezi = list()
+    for i in range(len(zadato_stanje)):
+        for j in range(len(zadato_stanje[i])):
+            if potez_validan_za_stanje(zadato_stanje,x_igra,(i,j)):
+                moguci_potezi.append((i,j))
+    return moguci_potezi
+
+#def odredi_heuristiku_za_stanje(stanje):
 
 def odredi_heurustiku(stanje):
     popunjene_kolone=0
@@ -211,12 +252,11 @@ def odredi_heurustiku(stanje):
             popunjene_vrste+=1
         if vrsta.count(None)==1:
             polu_popunjene_vrste+=1
-                
-
+            
     for kolona in range(len(stanje[0])):
-        if all(map(lambda x: True if (x==0 or x==1) else False,[stanje[vrsta,kolona] for vrsta in range(len(stanje))])):
+        if all(map(lambda x: True if (x==0 or x==1) else False,[stanje[vrsta][kolona] for vrsta in range(len(stanje))])):
             popunjene_kolone+=1  
-        if [stanje[vrsta,kolona] for vrsta in range(len(stanje))].count(None)==1:
+        if [stanje[vrsta][kolona] for vrsta in range(len(stanje))].count(None)==1:
             polu_popunjene_kolone+=1
 
     return polu_popunjene_kolone+polu_popunjene_vrste+popunjene_kolone+popunjene_vrste
