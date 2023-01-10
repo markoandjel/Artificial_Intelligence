@@ -1,6 +1,7 @@
 import pygame
+import sys
 class Domineering:
-    def __init__(self, stanje = [[]], x_na_potezu = True,screen=None,velicinaPolja=50,m=8,n=8,VI=False): #konstruktor
+    def __init__(self, stanje = [[]], x_na_potezu = True,screen=None,velicinaPolja=50,m=8,n=8,VI=False,dubina=4,x_max=True): #konstruktor
         self.stanje = stanje
         self.x_na_potezu = x_na_potezu
         self.screen=screen
@@ -8,45 +9,66 @@ class Domineering:
         self.m=m #m-broj vrsta
         self.n=n #n-broj kolona
         self.VI=VI
+        self.dubina=dubina
+        self.x_max=x_max
     
     def pocetni_parametri(self):
-        print("Unesite velicinu table u mxn")
-        self.m=int(input())
-        self.n=int(input())
-        nema_prvi_igrac = True
-        nema_prvi_simbol = True
-        while nema_prvi_igrac:
-            covek_prvi = input("Čovek igra prvi?(D/N)\n")
-            if covek_prvi == "D":
-                nema_prvi_igrac = False
-                covek_prvi = True
-            elif covek_prvi == "N":
-                nema_prvi_igrac = False
-                covek_prvi = False
-            elif covek_prvi == "d":
-                nema_prvi_igrac = False
-                covek_prvi = True
-            elif covek_prvi == "n":
-                nema_prvi_igrac = False
-                covek_prvi = False
+        nema_pod_vrednost=True
+        while nema_pod_vrednost:
+                pom = input("Podrazumevane vrednosti?(D/N)\n")
+                if pom == "D":
+                    podrazumevane_vrednost = True
+                    nema_pod_vrednost=False
+                elif pom == "N":
+                    podrazumevane_vrednost = False
+                    nema_pod_vrednost=False
+                elif pom == "d":
+                    podrazumevane_vrednost = True
+                    nema_pod_vrednost=False
+                elif pom == "n":
+                    podrazumevane_vrednost = False
+                    nema_pod_vrednost=False
+                    
+        if not podrazumevane_vrednost:
+            print("Unesite velicinu table u mxn")
+            self.m=int(input())
+            self.n=int(input())
+            print("Unesite dubinu pretrage")
+            self.dubina=int(input())
+            nema_prvi_igrac = True
+            nema_prvi_simbol = True            
+            while nema_prvi_igrac:
+                covek_prvi = input("Čovek igra prvi?(D/N)\n")
+                if covek_prvi == "D":
+                    nema_prvi_igrac = False
+                    covek_prvi = True
+                elif covek_prvi == "N":
+                    nema_prvi_igrac = False
+                    covek_prvi = False
+                elif covek_prvi == "d":
+                    nema_prvi_igrac = False
+                    covek_prvi = True
+                elif covek_prvi == "n":
+                    nema_prvi_igrac = False
+                    covek_prvi = False
 
-        while nema_prvi_simbol:
-            x_prvi = input("X igra prvi?(D/N)\n")
-            if x_prvi == "D":
-                nema_prvi_simbol = False
-                x_prvi = True 
-            elif x_prvi == "N":
-                nema_prvi_simbol = False
-                x_prvi = False 
-            elif x_prvi == "d":
-                nema_prvi_simbol = False
-                x_prvi = True   
-            elif x_prvi == "n":
-                nema_prvi_simbol = False
-                x_prvi = False 
+            while nema_prvi_simbol:
+                x_prvi = input("X igra prvi?(D/N)\n")
+                if x_prvi == "D":
+                    nema_prvi_simbol = False
+                    x_prvi = True 
+                elif x_prvi == "N":
+                    nema_prvi_simbol = False
+                    x_prvi = False 
+                elif x_prvi == "d":
+                    nema_prvi_simbol = False
+                    x_prvi = True   
+                elif x_prvi == "n":
+                    nema_prvi_simbol = False
+                    x_prvi = False 
 
-        self.VI=not covek_prvi
-        self.x_na_potezu=x_prvi
+            self.VI=not covek_prvi
+            self.x_na_potezu=x_prvi
 
 
     def crtaj_tablu(self): #crtanje prazne tabele, sa brojevima i slovima polja
@@ -106,9 +128,9 @@ class Domineering:
         for i in range(self.m-1,-1,-1):
             for j in range(self.n):
                 if self.stanje[i][j]==0:
-                    pygame.draw.rect(self.screen,(47, 44, 255),((j+1)*self.velicinaPolja,i*self.velicinaPolja+self.velicinaPolja,self.velicinaPolja,self.velicinaPolja))
+                    pygame.draw.rect(self.screen,(21,76,121),((j+1)*self.velicinaPolja,i*self.velicinaPolja+self.velicinaPolja,self.velicinaPolja,self.velicinaPolja))
                 elif self.stanje[i][j]==1:
-                    pygame.draw.rect(self.screen,(222, 56, 44),((j+1)*self.velicinaPolja,i*self.velicinaPolja+self.velicinaPolja,self.velicinaPolja,self.velicinaPolja))
+                    pygame.draw.rect(self.screen,(191, 32, 36),((j+1)*self.velicinaPolja,i*self.velicinaPolja+self.velicinaPolja,self.velicinaPolja,self.velicinaPolja))
     def proveri_klik(self,pos): #proverava da li je korisnik kliknuo na validnu poziciju na tabli
         (x,y)=pos
         x=x-self.velicinaPolja
@@ -167,10 +189,10 @@ def kraj_igre_za_stanje(stanje,x_igra): #provera da li je igra došla do kraja z
 
 def min_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
     if kraj_igre_za_stanje(stanje,x_igra):
-        return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
+        return (potez,-sys.maxsize) if x_igra==x_max else (potez,sys.maxsize) 
     lista_poteza=moguci_potezi(stanje,x_igra)
     if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
-        return (potez,odredi_heuristiku2(stanje,x_max))
+        return (potez,odredi_heuristiku3(stanje,x_max))
     for s in lista_poteza:
         beta=min(beta,max_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez is None else potez),key=lambda x:x[1])
         if beta[1]<=alfa[1]:
@@ -179,10 +201,10 @@ def min_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
 
 def max_value(stanje,x_igra,x_max,dubina,alfa,beta,potez=None):
     if kraj_igre_za_stanje(stanje,x_igra):
-        return (potez,float(-999)) if x_igra==x_max else (potez,float(999)) 
+        return (potez,-sys.maxsize) if x_igra==x_max else (potez,sys.maxsize) 
     lista_poteza=moguci_potezi(stanje,x_igra)
     if dubina==0 or lista_poteza is None or len(lista_poteza)==0:
-        return (potez,odredi_heuristiku2(stanje,x_max))
+        return (potez,odredi_heuristiku3(stanje,x_max))
     for s in lista_poteza:
         alfa=max(alfa,min_value(promena_stanja(stanje,x_igra,s),not x_igra,x_max,dubina-1,alfa,beta,s if potez is None else potez),key=lambda x:x[1])
         if beta[1]<=alfa[1]:
@@ -225,16 +247,6 @@ def promena_stanja(ulazno_stanje,x_igra,pos):
                 zadato_stanje[pos[0]][pos[1]+1]=0
     return zadato_stanje
 
-def moguca_nova_stanja(zadato_stanje,x_igra): #obrisi posle?
-    nova_stanja = list()
-    for i in range(len(zadato_stanje)):
-        for j in range(len(zadato_stanje[i])):
-            privremeno_stanje = [vrste.copy() for vrste in zadato_stanje]
-            if potez_validan_za_stanje(zadato_stanje,x_igra,(i,j)):
-                nova_stanja.append(promena_stanja(privremeno_stanje,x_igra,(i,j)))
-    return nova_stanja
-
-
 def moguci_potezi(zadato_stanje,x_igra):
     moguci_potezi = list()
     for i in range(len(zadato_stanje)):
@@ -243,9 +255,7 @@ def moguci_potezi(zadato_stanje,x_igra):
                 moguci_potezi.append((i,j))
     return moguci_potezi
 
-#def odredi_heuristiku_za_stanje(stanje):
-
-def odredi_heuristiku(stanje): #bot level noob
+def odredi_heuristiku(stanje):
     popunjene_kolone=0
     popunjene_vrste=0
     polu_popunjene_vrste=0
@@ -265,7 +275,7 @@ def odredi_heuristiku(stanje): #bot level noob
 
     return polu_popunjene_kolone+polu_popunjene_vrste+popunjene_kolone+popunjene_vrste
 
-def odredi_heuristiku2(stanje,x_max): # bot level super-mega-giga-tera proooooo
+def odredi_heuristiku2(stanje,x_max):
     x_linija=0
     o_linija=0
     prazna_mesta=0
@@ -285,3 +295,15 @@ def odredi_heuristiku2(stanje,x_max): # bot level super-mega-giga-tera proooooo
                 prazna_mesta+=1
     
     return (x_linija-o_linija)*prazna_mesta if x_max==True else (o_linija-x_linija)*prazna_mesta
+
+def odredi_heuristiku3(stanje,x_max):
+    x_potezi=0
+    o_potezi=0
+    for vrsta in range(len(stanje)):
+        for kolona in range(len(stanje[vrsta])):
+            if potez_validan_za_stanje(stanje,True,(vrsta,kolona)):#x_igra
+                x_potezi+=1
+            if potez_validan_za_stanje(stanje,False,(vrsta,kolona)):#0_igra
+                o_potezi+=1
+    
+    return (x_potezi-o_potezi) if x_max==True else (o_potezi-x_potezi)
