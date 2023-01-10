@@ -4,15 +4,13 @@ from pygame.locals import *
 from domineering import *
 from domineering import Domineering
 from timeit import default_timer as timer
-pygame.init()
 clock=pygame.time.Clock()
-# Postavi ekran
-screen = pygame.display.set_mode([800, 800])
+pygame.init()
 
-dominacija = Domineering(screen=screen) #podesi x_max=False ako ti treba da Oks bude max igrac
-
+dominacija = Domineering() #podesi x_max=False ako ti treba da Oks bude max igrac
 dominacija.pocetni_parametri()
 dominacija.pocetno_stanje()
+dominacija.postavi_ekran(pygame.display.set_mode([800,800]))
 
 running = True
 dominacija.crtaj_tablu()

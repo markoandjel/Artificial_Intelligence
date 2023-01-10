@@ -11,7 +11,8 @@ class Domineering:
         self.VI=VI
         self.dubina=dubina
         self.x_max=x_max
-    
+    def postavi_ekran(self,screen):
+        self.screen=screen
     def pocetni_parametri(self):
         nema_pod_vrednost=True
         while nema_pod_vrednost:
