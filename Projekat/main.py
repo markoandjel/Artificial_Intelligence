@@ -1,4 +1,5 @@
 import pygame
+import os
 from pygame.locals import *
 from domineering import *
 from domineering import Domineering
